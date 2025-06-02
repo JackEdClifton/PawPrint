@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Projects</h1>
+    <p>Manage projects in this page.</p>
+
+    <br/>
+    
+    <form action="/projects" method="POST">
+        <input type="text" name="project" placeholder="New Project Name" required/>
+        <button type="submit">Add Project</button>
+    </form>
+
+    <br/>
+
+    <table>
+        <tr>
+            <th>Project</th>
+            <th>Action</th>
+        </tr>
+
+        {% for project in projects %}
+        
+        <tr>
+            <td>{{ project.name }}</td>
+            <td>
+                <button>Rename</button>
+                <button>Delete</button>
+            </td>
+        </tr>
+        {% endfor %}
+        
+    </table>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Home</h1>
+    <p>Welcome to PawPrint. A development tracker for teams to review and approve git commits before merging back with the main code.</p>
+
+    <p>The general workflow looks something like this... 
+        <ul>
+            <li>Create your own branch, do some work, and get a final (head) commit hash.</li>
+            <li>Once complete, make a ticket in PawPrint.</li>
+            <li>Manager will review commit, and either:</li>
+            <ul>
+                <li>Comment for corrections.</li>
+                <li>Approve commits.</li>
+            </ul>
+            <li>Once approved, it is the developers job to apply changes to relevant branches, and mark ticket as complete.</li>
+            <li>Reviewer will verify changes have been applied correctly and close the ticket.</li>
+        </ul>
+    </p>
+        
+        
+    <p>It must be noted this is purely a tracker, and does not prevent misuse of git. It is your own responsibility to not blow stuff up into a giant ball of flames.</p>
+        
+{% endblock %}
