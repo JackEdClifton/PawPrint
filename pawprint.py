@@ -114,11 +114,30 @@ def add_item():
 		return flask.redirect(flask.url_for("jack"))
 
 
+@app.route("/projects/<int:project_id>/delete", methods=["POST"])
+def delete_project(project_id):
 
+	project_id = flask.request.form.get("project_id")
 
-@app.route("/delete-item")
-def delete_item():
-	return flask.render_template("delete_item.html")
+	try:
+		project_id = int(project_id)
+	except ValueError:
+		print("Could not cast to int")
+		project_id = None
+
+	if not project_id:
+		print("Invalid Project id")
+		return flask.redirect("/home")
+
+	project_obj = projects.query.filter_by(project_id=project_id).first()
+
+	if not project_obj:
+		print("Could not locate record")
+		return flask.redirect("/home")
+
+	db.session.delete(project_obj)
+	db.session.commit()
+
 
 
 

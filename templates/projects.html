@@ -24,8 +24,14 @@
         <tr>
             <td>{{ project.name }}</td>
             <td>
-                <button>Rename</button>
-                <button>Delete</button>
+                <form action="/projects/{{ project.project_id }}/rename" method="POST">
+                    <button>Rename</button>
+                </form>
+
+                <form action="/projects/{{ project.project_id }}/delete" method="POST">
+                    <button>Delete</button>
+                </form>
+
             </td>
         </tr>
         {% endfor %}
