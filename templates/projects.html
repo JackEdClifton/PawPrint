@@ -7,7 +7,7 @@
     <br/>
     
     <form action="/projects" method="POST">
-        <input type="text" name="project" placeholder="New Project Name" required/>
+        <input class="dark-text-input" type="text" name="project" placeholder="New Project Name" required/>
         <button type="submit">Add Project</button>
     </form>
 
@@ -22,11 +22,14 @@
         {% for project in projects %}
         
         <tr>
-            <td>{{ project.name }}</td>
             <td>
-                <form action="/projects/{{ project.project_id }}/rename" method="POST">
-                    <button>Rename</button>
+                <form id="rename-project-{{ project.project_id }}" action="/projects/{{ project.project_id }}/rename" method="POST">
+                    <input class="dark-text-input" type="text" name="name" value="{{ project.name }}" required>
                 </form>
+            </td>
+            
+            <td>
+                <button type="submit" form="rename-project-{{ project.project_id }}">Rename</button>
 
                 <form action="/projects/{{ project.project_id }}/delete" method="POST">
                     <button>Delete</button>
@@ -37,5 +40,17 @@
         {% endfor %}
         
     </table>
+
+{% endblock %}
+
+
+{% block style %}
+
+<style>
+    tr td form {
+        display: inline-block;
+    }
+
+</style>
 
 {% endblock %}

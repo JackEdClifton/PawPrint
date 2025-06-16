@@ -90,55 +90,53 @@ def projects():
 		if project:
 			new_project = Projects(name=project)
 			db.session.add(new_project)
-			db.session.commit()
+			
+			try:
+				db.session.commit()
+			except:
+				db.session.rollback()
+				return flask.render_template("error.html", errorcontent="A project with that name already exists.")
+
+		else:
+			return flask.render_template("error.html", errorcontent="New project name is invalid.")
 
 	projects = Projects.query.all()
 	return flask.render_template("projects.html", projects=projects)
 
 
 
-
-@app.route("/add-item", methods=["GET", "POST"])
-def add_item():
-
-	if flask.request.method == "GET":
-		return flask.render_template("create.html")
-
-	elif flask.request.method == "POST":
-		content = flask.request.form.get("content")
-		if content:
-			new_item = Item(content=content)
-			db.session.add(new_item)
-			db.session.commit()
-		
-		return flask.redirect(flask.url_for("jack"))
-
-
 @app.route("/projects/<int:project_id>/delete", methods=["POST"])
 def delete_project(project_id):
 
-	project_id = flask.request.form.get("project_id")
-
-	try:
-		project_id = int(project_id)
-	except ValueError:
-		print("Could not cast to int")
-		project_id = None
-
-	if not project_id:
-		print("Invalid Project id")
-		return flask.redirect("/home")
-
-	project_obj = projects.query.filter_by(project_id=project_id).first()
+	project_obj = Projects.query.filter_by(project_id=project_id).first()
 
 	if not project_obj:
-		print("Could not locate record")
-		return flask.redirect("/home")
+		return flask.render_template("error.html", errorcontent="Could not locate project with that ID.")
 
 	db.session.delete(project_obj)
 	db.session.commit()
 
+	return flask.redirect("/projects")
 
+
+
+@app.route("/projects/<int:project_id>/rename", methods=["POST"])
+def rename_project(project_id):
+
+	new_project_name = flask.request.form.get("name", "").strip()
+
+	if not new_project_name:
+		return flask.render_template("error.html", errorcontent="Invalid project name.")
+
+	project_obj = Projects.query.filter_by(project_id=project_id).first()
+
+	if not project_obj:
+		return flask.render_template("error.html", errorcontent="Could not locate project with that ID.")
+
+	project_obj.name = new_project_name	
+	db.session.commit()
+
+	return flask.redirect("/projects")
 
 
 

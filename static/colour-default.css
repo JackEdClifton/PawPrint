@@ -30,3 +30,18 @@ button {
 input {
     color: black;
 }
+
+
+
+.dark-text-input {
+    background-color: #4c4c4c;
+    color: white;
+}
+
+.dark-text-input::placeholder {
+    color: lightgray;
+}
+
+
+
+
