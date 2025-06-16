@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Users</h1>
+    <p>Manage users in this page.</p>
+
+    <br/>
+    
+    <form action="/users" method="POST">
+        <input class="dark-text-input" type="text" name="name" placeholder="Name" required/>
+        <input class="dark-text-input" type="text" name="email" placeholder="Email" required/>
+        <button type="submit">Create User</button>
+    </form>
+
+    <br/>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Privileges</th>
+            <th>Created At</th>
+            <th>Updated At</th>
+        </tr>
+
+        {% for user in users %}
+        
+        <tr>
+            <td>{{ user.user_id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+                <select>
+                    {% for priv_name, priv_value in privileges %}
+                        <option value="{{ priv_value }}"
+                        {% if user.privileges == priv_value %}selected{% endif %}
+                        >
+                            {{ priv_name.replace('_', ' ').title() }}
+                        </option>
+                    {% endfor %}
+                </select> 
+            </td>
+            <td>{{ user.created_at }}</td>
+            <td>{{ user.updated_at }}</td>
+        </tr>
+        {% endfor %}
+        
+    </table>
+
+{% endblock %}
+
+
+{% block style %}
+
+<style>
+
+</style>
+
+{% endblock %}

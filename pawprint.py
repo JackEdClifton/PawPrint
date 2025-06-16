@@ -17,6 +17,10 @@ class Privileges:
 	approver = 3	# can approve tickets
 	admin = 4		# can manage user accounts
 
+	@classmethod
+	def items(cls):
+		return [(name, value) for name, value in vars(cls).items() if not name.startswith("__")]
+
 
 class StatusTypes:
 	none = 0		# for new accounts
@@ -37,7 +41,7 @@ class Users(db.Model):
 	user_id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(64), nullable=False)
 	email = db.Column(db.String(128), nullable=False, unique=True)
-	privileges = db.Column(db.Integer, nullable=False)
+	privileges = db.Column(db.Integer, nullable=False, default=Privileges.none)
 	created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
 
@@ -137,6 +141,43 @@ def rename_project(project_id):
 	db.session.commit()
 
 	return flask.redirect("/projects")
+
+
+
+
+@app.route("/users", methods=["GET", "POST"])
+def users():
+
+	if flask.request.method == "POST":
+		name = flask.request.form.get("name")
+		email = flask.request.form.get("email")
+
+		if name and email:
+			new_user = Users(name=name, email=email)
+			db.session.add(new_user)
+			
+			try:
+				db.session.commit()
+			except:
+				db.session.rollback()
+				return flask.render_template("error.html", errorcontent="Could not create user.")
+
+		else:
+			return flask.render_template("error.html", errorcontent="User details not valid. Please try again.")
+
+	users = Users.query.all()
+	return flask.render_template("users.html", users=users, privileges=Privileges.items())
+
+
+
+
+
+
+
+
+
+
+
 
 
 
