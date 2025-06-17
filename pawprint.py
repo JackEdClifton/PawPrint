@@ -83,6 +83,14 @@ with app.app_context():
 
 
 
+# a shortcut to return the error page
+def get_flask_error(error):
+	return flask.render_template("error.html", errorcontent=error)
+
+
+
+
+
 @app.route("/")
 def home():
 	return flask.render_template("home.html")
@@ -102,10 +110,10 @@ def projects():
 				db.session.commit()
 			except:
 				db.session.rollback()
-				return flask.render_template("error.html", errorcontent="A project with that name already exists.")
+				return get_flask_error("A project with that name already exists.")
 
 		else:
-			return flask.render_template("error.html", errorcontent="New project name is invalid.")
+			return get_flask_error("New project name is invalid.")
 
 	projects = Projects.query.all()
 	return flask.render_template("projects.html", projects=projects)
@@ -118,7 +126,7 @@ def delete_project(project_id):
 	project_obj = Projects.query.filter_by(project_id=project_id).first()
 
 	if not project_obj:
-		return flask.render_template("error.html", errorcontent="Could not locate project with that ID.")
+		return get_flask_error("Could not locate project with that ID.")
 
 	db.session.delete(project_obj)
 	db.session.commit()
@@ -133,12 +141,12 @@ def rename_project(project_id):
 	new_project_name = flask.request.form.get("name", "").strip()
 
 	if not new_project_name:
-		return flask.render_template("error.html", errorcontent="Invalid project name.")
+		return get_flask_error("Invalid project name.")
 
 	project_obj = Projects.query.filter_by(project_id=project_id).first()
 
 	if not project_obj:
-		return flask.render_template("error.html", errorcontent="Could not locate project with that ID.")
+		return get_flask_error("Could not locate project with that ID.")
 
 	project_obj.name = new_project_name	
 	db.session.commit()
@@ -163,20 +171,24 @@ def users():
 				db.session.commit()
 			except:
 				db.session.rollback()
-				return flask.render_template("error.html", errorcontent="Could not create user.")
+				return get_flask_error("Could not create user.")
 
 		else:
-			return flask.render_template("error.html", errorcontent="User details not valid. Please try again.")
+			return get_flask_error("User details not valid. Please try again.")
 
 	users = Users.query.all()
 	return flask.render_template("users.html", users=users, privileges=Privileges.items())
 
 
 
+@app.route("/signin", methods=["GET", "POST"])
+def signin():
+
+	if flask.request.method == "POST":
+		return get_flask_error("Not implemented.")
 
 
-
-
+	return flask.render_template("signin.html")
 
 
 

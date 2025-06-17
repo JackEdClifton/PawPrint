@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Signin</h1>
+    <p>Log into your user account.</p>
+
+    <br/>
+    
+    <form action="/users" method="POST">
+        <input class="dark-text-input" type="text" name="email" placeholder="Email" required/>
+        <input class="dark-text-input" type="password" name="password" placeholder="Password" required/>
+        <button type="submit">Sign in</button>
+    </form>
+   
+
+{% endblock %}
+
+
+{% block style %}
+
+    <style>
+        form input {
+            display: block;
+            margin-bottom: 10px;
+            min-width: 250px;
+        }
+
+        form button {
+            margin-top: 15px;
+            padding: 5px 10px;
+        }
+    </style>
+
+{% endblock %}
