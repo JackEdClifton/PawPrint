@@ -33,16 +33,15 @@
             <td>
                 <select>
                     {% for priv_name, priv_value in privileges %}
-                        <option value="{{ priv_value }}"
-                        {% if user.privileges == priv_value %}selected{% endif %}
-                        >
+                        <option value="{{ priv_value }}" class=""
+                        {% if user.privileges == priv_value %}selected{% endif %}>
                             {{ priv_name.replace('_', ' ').title() }}
                         </option>
                     {% endfor %}
                 </select> 
             </td>
-            <td>{{ user.created_at }}</td>
-            <td>{{ user.updated_at }}</td>
+            <td>{{ user.created_at.strftime('%d-%b-%Y') }}</td>
+            <td>{{ user.updated_at.strftime('%d-%b-%Y') }}</td>
         </tr>
         {% endfor %}
         
@@ -54,6 +53,10 @@
 {% block style %}
 
 <style>
+
+    table tr td {
+        padding: 5px 15px;
+    }
 
 </style>
 

@@ -19,7 +19,10 @@ class Privileges:
 
 	@classmethod
 	def items(cls):
-		return [(name, value) for name, value in vars(cls).items() if not name.startswith("__")]
+		return [
+			(name, value) for name, value in vars(cls).items()
+			if (not name.startswith("__") and isinstance(value, int))
+		]
 
 
 class StatusTypes:
