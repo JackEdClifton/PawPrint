@@ -21,3 +21,15 @@ header nav a {
     text-decoration: none;
 }
 
+
+form.account-input input {
+    display: block;
+    margin-bottom: 10px;
+    min-width: 250px;
+}
+
+form.account-input button {
+    margin-top: 15px;
+    padding: 5px 10px;
+}
+

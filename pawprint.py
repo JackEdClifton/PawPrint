@@ -1,14 +1,24 @@
 import flask
 import flask_sqlalchemy
+import flask_login
+import werkzeug.security
 import datetime
 
 app = flask.Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///items.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = "pawprint"
 
 db = flask_sqlalchemy.SQLAlchemy(app)
 
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "signin"
+
+@login_manager.user_loader
+def load_user(user_id):
+	return Users.query.get(int(user_id))
 
 class Privileges:
 	none = 0		# default value for new accounts
@@ -23,6 +33,10 @@ class Privileges:
 			(name, value) for name, value in vars(cls).items()
 			if (not name.startswith("__") and isinstance(value, int))
 		]
+	
+	@classmethod
+	def contains_value(cls, value):
+		return value in cls.values()
 
 
 class StatusTypes:
@@ -40,13 +54,18 @@ class Projects(db.Model):
 	name = db.Column(db.String(64), nullable=False, unique=True)
 
 
-class Users(db.Model):
+class Users(db.Model, flask_login.UserMixin):
 	user_id = db.Column(db.Integer, primary_key=True)
-	name = db.Column(db.String(64), nullable=False)
+	f_name = db.Column(db.String(64), nullable=False)
+	s_name = db.Column(db.String(64), nullable=False)
 	email = db.Column(db.String(128), nullable=False, unique=True)
+	password = db.Column(db.String(128), nullable=False)
 	privileges = db.Column(db.Integer, nullable=False, default=Privileges.none)
 	created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+
+	def get_id(self):
+		return str(self.user_id)
 
 
 class Review(db.Model):
@@ -81,6 +100,13 @@ class Status(db.Model):
 with app.app_context():
 	db.create_all()
 
+	if Users.query.count() == 0:
+		db.session.add(Users(f_name="admin", s_name="user", email="admin@localhost",
+			privileges=Privileges.admin,
+			password=werkzeug.security.generate_password_hash("admin")
+		))
+		db.session.commit()
+
 
 
 # a shortcut to return the error page
@@ -88,7 +114,13 @@ def get_flask_error(error):
 	return flask.render_template("error.html", errorcontent=error)
 
 
-
+@app.before_request
+def load_logged_in_user():
+	user_id = flask.session.get("user_id")
+	if user_id is None:
+		flask.g.user = None
+	else:
+		flask.g.user = User.query.get(user_id)
 
 
 @app.route("/")
@@ -97,7 +129,11 @@ def home():
 
 
 @app.route("/projects", methods=["GET", "POST"])
+@flask_login.login_required
 def projects():
+
+	if flask_login.current_user.privileges != Privileges.admin:
+		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
 
 	if flask.request.method == "POST":
 		project = flask.request.form.get("project")
@@ -121,6 +157,7 @@ def projects():
 
 
 @app.route("/projects/<int:project_id>/delete", methods=["POST"])
+@flask_login.login_required
 def delete_project(project_id):
 
 	project_obj = Projects.query.filter_by(project_id=project_id).first()
@@ -136,6 +173,7 @@ def delete_project(project_id):
 
 
 @app.route("/projects/<int:project_id>/rename", methods=["POST"])
+@flask_login.login_required
 def rename_project(project_id):
 
 	new_project_name = flask.request.form.get("name", "").strip()
@@ -157,14 +195,18 @@ def rename_project(project_id):
 
 
 @app.route("/users", methods=["GET", "POST"])
+@flask_login.login_required
 def users():
 
 	if flask.request.method == "POST":
-		name = flask.request.form.get("name")
+		f_name = flask.request.form.get("f_name")
+		s_name = flask.request.form.get("s_name")
 		email = flask.request.form.get("email")
 
-		if name and email:
-			new_user = Users(name=name, email=email)
+		if f_name and s_name and email:
+			new_user = Users(f_name=f_name, s_name=s_name, email=email,
+				password=werkzeug.security.generate_password_hash("password")
+			)
 			db.session.add(new_user)
 			
 			try:
@@ -181,18 +223,62 @@ def users():
 
 
 
+@app.route("/users/<int:user_id>/priv", methods=["POST"])
+@flask_login.login_required
+def update_user_priv(user_id):
+
+	new_priv_value = flask.request.form.get("priv", type=int)
+
+	if not Privileges.contains_value(new_priv_value):
+		return get_flask_error("Privilage of that value is not valid.")
+	
+	user_obj = Users.query.filter_by(user_id=user_id).first()
+
+	user_obj.privileges = new_priv_value
+	user_obj.updated_at = datetime.datetime.utcnow()
+
+	try:
+		db.session.commit()
+	except:
+		db.sesion.rollback()
+		return get_flask_error("Could not update privilage")
+
+	
+	
+
+
+
 @app.route("/signin", methods=["GET", "POST"])
 def signin():
 
 	if flask.request.method == "POST":
-		return get_flask_error("Not implemented.")
 
+		email = flask.request.form.get("email")
+		password = flask.request.form.get("password")
+
+		if not (email and password):
+			return get_flask_error("Invalid login creds.")
+		
+		user_obj = Users.query.filter_by(email=email).first()
+
+		if not user_obj:
+			return get_flask_error("Invalid login creds.")
+
+		if not werkzeug.security.check_password_hash(user_obj.password, password):
+			return get_flask_error("Invalid login creds.")
+		
+		flask_login.login_user(user_obj)
+		return flask.redirect("/") # TODO: make account page
 
 	return flask.render_template("signin.html")
 
 
 
-
+@app.route("/signout")
+@flask_login.login_required
+def signout():
+	flask_login.logout_user()
+	return flask.redirect("/signin")
 
 
 

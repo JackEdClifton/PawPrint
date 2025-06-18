@@ -6,8 +6,9 @@
 
     <br/>
     
-    <form action="/users" method="POST">
-        <input class="dark-text-input" type="text" name="name" placeholder="Name" required/>
+    <form action="/users" method="POST" class="account-input">
+        <input class="dark-text-input" type="text" name="f_name" placeholder="First Name" required/>
+        <input class="dark-text-input" type="text" name="s_name" placeholder="Surname Name" required/>
         <input class="dark-text-input" type="text" name="email" placeholder="Email" required/>
         <button type="submit">Create User</button>
     </form>
@@ -28,17 +29,19 @@
         
         <tr>
             <td>{{ user.user_id }}</td>
-            <td>{{ user.name }}</td>
+            <td>{{ user.f_name }} {{ user.s_name }}</td>
             <td>{{ user.email }}</td>
             <td>
-                <select>
+                <form action="/users/{{ user.id }}/priv" method="POST">
+                    <select>
                     {% for priv_name, priv_value in privileges %}
                         <option value="{{ priv_value }}" class=""
-                        {% if user.privileges == priv_value %}selected{% endif %}>
+                            {% if user.privileges == priv_value %}selected{% endif %}>
                             {{ priv_name.replace('_', ' ').title() }}
                         </option>
                     {% endfor %}
-                </select> 
+                    </select> 
+                </form>
             </td>
             <td>{{ user.created_at.strftime('%d-%b-%Y') }}</td>
             <td>{{ user.updated_at.strftime('%d-%b-%Y') }}</td>
