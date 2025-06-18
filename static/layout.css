@@ -1,4 +1,12 @@
 
+body {
+    margin: 0px;
+}
+
+main {
+    margin: 30px;
+}
+
 header {
     padding: 20px;
 }
@@ -11,7 +19,7 @@ header nav {
     text-align: center;
 }
 
-header nav a {
+header nav a, .user-account-btn {
     padding: 5px;
     margin-left: 5px;
     margin-right: 5px;
@@ -21,6 +29,20 @@ header nav a {
     text-decoration: none;
 }
 
+button {
+    margin-left: 15px;
+}
+
+.user-account-btn {
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+form.account-input {
+    margin-bottom: 50px;
+}
 
 form.account-input input {
     display: block;

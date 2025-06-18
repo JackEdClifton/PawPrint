@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Account</h1>
+    <p>Manage your personal account info.</p>
+
+    <br/>
+    
+    <form action="/account/update-name" method="POST" class="account-input">
+        <input class="dark-text-input" type="text" name="f_name" placeholder="First Name" value="{{ current_user.f_name }}" required/>
+        <input class="dark-text-input" type="text" name="s_name" placeholder="Surname Name" value="{{ current_user.s_name }}" required/>
+        <button type="submit">Update Name</button>
+    </form>
+    
+    <form action="/account/update-email" method="POST" class="account-input">
+        <input class="dark-text-input" type="text" name="email" placeholder="Email" value="{{ current_user.email }}" required/>
+        <button type="submit">Update Email</button>
+    </form>
+
+    <form action="/account/update-password" method="POST" class="account-input">
+        <input class="dark-text-input" type="text" name="old_password" placeholder="Old Password" required/>
+        <input class="dark-text-input" type="text" name="new_password" placeholder="New Password" required/>
+        <button type="submit">Update Password</button>
+    </form>
+    
+    <br/>
+
+{% endblock %}
+
+
+{% block style %}
+
+<style>
+
+    table tr td {
+        padding: 5px 15px;
+    }
+
+</style>
+
+{% endblock %}

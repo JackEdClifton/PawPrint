@@ -9,7 +9,15 @@
 
     <body>
         <header>
-            <h1>PawPrint</h1>
+            <div style="position: relative;">
+                <h1>PawPrint</h1>
+                {% if current_user.is_authenticated %}
+                    <a href="/account" class="user-account-btn" style="text-align: right;">
+                        {{ current_user.f_name }} {{ current_user.s_name[0] if current_user.s_name else "" }}
+                    </a>
+                {% endif %}
+            </div>
+
             <nav>
                 <a href="/">Home</a>
                 <a href="/projects">Projects</a>
@@ -21,11 +29,6 @@
                 {% endif %}
             </nav>
 
-            {% if current_user.is_authenticated %}
-                <div style="text-align: right;">
-                    {{ current_user.f_name }} {{ current_user.s_name[0] if current_user.s_name else "" }}
-                </div>
-            {% endif %}
 
         </header>
 

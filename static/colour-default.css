@@ -5,26 +5,23 @@
 
 body {
     background-color: #282828;
-    margin: 0px;
+}
+
+h1 {
+    display: inline-block;
 }
 
 header {
     background-color: #3c3c3c;
 }
 
-header nav a:hover {
+header nav a:hover, .user-account-btn:hover {
     background-color: #4c4c4c;
 }
-
-main {
-    margin: 30px;
-}
-
 
 button {
     color: white;
     background-color: #3c3c3c;
-    margin-left: 15px;
 }
 
 input {

@@ -160,6 +160,9 @@ def projects():
 @flask_login.login_required
 def delete_project(project_id):
 
+	if flask_login.current_user.privileges != Privileges.admin:
+		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
+
 	project_obj = Projects.query.filter_by(project_id=project_id).first()
 
 	if not project_obj:
@@ -175,6 +178,9 @@ def delete_project(project_id):
 @app.route("/projects/<int:project_id>/rename", methods=["POST"])
 @flask_login.login_required
 def rename_project(project_id):
+
+	if flask_login.current_user.privileges != Privileges.admin:
+		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
 
 	new_project_name = flask.request.form.get("name", "").strip()
 
@@ -197,6 +203,9 @@ def rename_project(project_id):
 @app.route("/users", methods=["GET", "POST"])
 @flask_login.login_required
 def users():
+
+	if flask_login.current_user.privileges != Privileges.admin:
+		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
 
 	if flask.request.method == "POST":
 		f_name = flask.request.form.get("f_name")
@@ -226,6 +235,9 @@ def users():
 @app.route("/users/<int:user_id>/priv", methods=["POST"])
 @flask_login.login_required
 def update_user_priv(user_id):
+
+	if flask_login.current_user.privileges != Privileges.admin:
+		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
 
 	new_priv_value = flask.request.form.get("priv", type=int)
 
@@ -268,7 +280,7 @@ def signin():
 			return get_flask_error("Invalid login creds.")
 		
 		flask_login.login_user(user_obj)
-		return flask.redirect("/") # TODO: make account page
+		return flask.redirect("/account")
 
 	return flask.render_template("signin.html")
 
@@ -282,6 +294,80 @@ def signout():
 
 
 
+@app.route("/account")
+@flask_login.login_required
+def account():
+	return flask.render_template("userAccount.html")
+
+
+
+@app.route("/account/update-name", methods=["POST"])
+@flask_login.login_required
+def account_update_name():
+
+	new_f_name = flask.request.form.get("f_name")
+	new_s_name = flask.request.form.get("s_name")
+
+	if not (new_f_name and new_s_name):
+		return get_flask_error("Could not update name. Ensure new name values are valid.")
+
+	flask_login.current_user.f_name = new_f_name
+	flask_login.current_user.s_name = new_s_name
+
+	try:
+		db.session.commit()
+	except:
+		db.session.rollback()
+		return get_flask_error("Could not update name. Database error.")
+
+	return flask.redirect("/account")
+
+
+
+@app.route("/account/update-email", methods=["POST"])
+@flask_login.login_required
+def account_update_email():
+
+	new_email = flask.request.form.get("email")
+
+	if not new_email:
+		return get_flask_error("Could not update email.")
+
+	flask_login.current_user.email = new_email
+
+	try:
+		db.session.commit()
+	except:
+		db.session.rollback()
+		return get_flask_error("Could not update email.")
+
+	return flask.redirect("/account")
+
+
+
+@app.route("/account/update-password", methods=["POST"])
+@flask_login.login_required
+def account_update_password():
+
+	old_password = flask.request.form.get("old_password")
+	new_password = flask.request.form.get("new_password")
+
+	if not new_password:
+		return get_flask_error("Could not update password.")
+
+
+	if not werkzeug.security.check_password_hash(flask_login.current_user.password, old_password):
+		return get_flask_error("Could not update password. Old password provided does not match existing password.")
+
+	flask_login.current_user.password = werkzeug.security.generate_password_hash(new_password)
+
+	try:
+		db.session.commit()
+	except:
+		db.session.rollback()
+		return get_flask_error("Could not update password. Database error")
+
+	return flask.redirect("/account")
 
 
 if __name__ == "__main__":
