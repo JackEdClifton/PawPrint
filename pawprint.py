@@ -72,7 +72,8 @@ class Review(db.Model):
 	review_id = db.Column(db.Integer, primary_key=True)
 	project_id = db.Column(db.Integer, db.ForeignKey('projects.project_id'), nullable=False)
 	branch = db.Column(db.String(64), nullable=False)
-	commits = db.Column(db.Text, nullable=False)
+	head_commit = db.Column(db.String(64), nullable=False)
+	base_commit = db.Column(db.String(64), nullable=False)
 	ers_number = db.Column(db.Integer, nullable=False)
 	author_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
 	created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
@@ -368,6 +369,69 @@ def account_update_password():
 		return get_flask_error("Could not update password. Database error")
 
 	return flask.redirect("/account")
+
+
+@app.route("/reviews", methods=["GET", "POST"])
+@flask_login.login_required
+def reviews():
+
+	if not flask_login.current_user.privileges in (
+		Privileges.admin,
+		Privileges.approver,
+		Privileges.developer
+	):
+		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
+
+
+	if flask.request.method == "POST":
+
+		project_id = flask.request.form.get("project_id", type=int)
+		branch = flask.request.form.get("branch")
+		ers_number = flask.request.form.get("ers_number", type=int)
+		head_commit = flask.request.form.get("head_commit")
+		base_commit = flask.request.form.get("base_commit")
+		notes = flask.request.form.get("notes", "")
+
+		if not (branch and head_commit and base_commit):
+			return get_flask_error("Input data is not valid. Review could not be created. Please try again.")
+
+		print(f"*** CREATING USER *** id={project_id}")
+
+		new_review = Review(
+			project_id=project_id,
+			branch=branch,
+			head_commit=head_commit,
+			base_commit=base_commit,
+			ers_number=ers_number,
+			author_id=flask_login.current_user.user_id
+		)
+
+		db.session.add(new_review)
+		db.session.flush()
+
+		new_status = Status(
+			review_id=new_review.review_id,
+			status=StatusTypes.review,
+			actor_id=flask_login.current_user.user_id,
+			modified_at=datetime.datetime.utcnow(),
+			notes=notes
+		)
+
+
+		db.session.add(new_status)
+
+		try:
+			db.session.commit()
+		except:
+			db.session.rollback()
+			return get_flask_error("Could not create review. Please check your data and try again, or contact your admin.")
+
+	projects = Projects.query.all()
+	reviews = Review.query.all()
+	return flask.render_template("reviews.html", projects=projects, reviews=reviews)
+
+
+
 
 
 if __name__ == "__main__":

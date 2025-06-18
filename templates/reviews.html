@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Reviews</h1>
+    <p>Manage reviews</p>
+
+    <br/>
+    
+
+    <form action="/reviews" method="POST">
+        <select name="project_id">
+        {% for project in projects %}
+            <option value="{{ project.project_id }}">
+                {{ project.name }}
+            </option>
+        {% endfor %}
+        </select> 
+                
+        <input class="dark-text-input" type="text" name="branch" placeholder="Branch" required/>
+        <input class="dark-text-input" type="text" name="ers_number" placeholder="ERS Number" required/>
+        <input class="dark-text-input" type="text" name="head_commit" placeholder="Head Commit" required/>
+        <input class="dark-text-input" type="text" name="base_commit" placeholder="Base Commit" required/>
+        <input class="dark-text-input" type="text" name="notes" placeholder="Notes"/>
+
+        <button type="submit">Create New Review</button>
+    </form>
+    
+
+    <br/>
+    
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Project</th>
+            <th>Branch</th>
+            <th>ERS Number</th>
+            <th>Author</th>
+            <th>Created At</th>
+        </tr>
+
+        {% for review in reviews %}
+            <tr>
+                <td><a href="/review/{{ review.review_id }}">{{ review.review_id }}</a></td>
+                <td>{{ review.project.name }}</td>
+                <td>{{ review.branch }}</td>
+                <td>{{ review.ers_number }}</td>
+                <td>{{ review.author.name }}</td>
+                <td>{{ review.created_at.strftime('%d-%b-%Y') }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+
+{% endblock %}
+
+
+{% block style %}
+{% endblock %}
