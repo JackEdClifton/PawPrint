@@ -40,7 +40,7 @@
 
         {% for review in reviews %}
             <tr>
-                <td><a href="/review/{{ review.review_id }}">{{ review.review_id }}</a></td>
+                <td><a href="/reviews/{{ review.review_id }}">{{ review.review_id }}</a></td>
                 <td>{{ review.project.name }}</td>
                 <td>{{ review.branch }}</td>
                 <td>{{ review.ers_number }}</td>

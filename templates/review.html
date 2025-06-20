@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h1>Review #{{ review.review_id }}</h1>
+    <p>See review details.</p>
+
+    <br/>
+    
+    <div class="standout-bg">
+        <table id="review-table">
+            <tr>
+                <th>Status</th>
+                {% if statusList %}
+                <td>{{ StatusTypes.name(statusList[-1].status) }}</td>
+                {% else %}
+                <td>Not found</td>                
+                {% endif %}
+            </tr>
+            <tr>
+                <th>Project</th>
+                <td>{{ review.project.name }}</td>
+            </tr>
+            <tr>
+                <th>Branch</th>
+                <td>{{ review.branch }}</td>
+            </tr>
+            <tr>
+                <th>Head Commit</th>
+                <td>{{ review.head_commit }}</td>
+            </tr>
+            <tr>
+                <th>Base Commit</th>
+                <td>{{ review.base_commit }}</td>
+            </tr>
+            <tr>
+                <th>ERS Number</th>
+                <td>#{{ review.ers_number }}</td>
+            </tr>
+            <tr>
+                <th>Author</th>
+                <td>{{ review.author.f_name }} {{ review.author.s_name }}</td>
+            </tr>
+            <tr>
+                <th>Created At</th>
+                <td>{{ review.created_at.strftime('%d-%b-%Y') }}</td>
+            </tr>
+            
+        </table>
+    </div>
+        
+        
+    <br/>
+    
+    {% for status in statusList %}
+
+        <div class="status-item standout-bg">
+
+            <div>
+                <span>{{ status.modified_at.strftime('%d-%b-%Y') }}</span>
+                <span> - </span>
+                <span>{{ status.actors.f_name }} {{ status.actors.s_name }}</span>
+            </div>
+
+            <div>
+                Status: {{ StatusTypes.name(status.status) }}
+            </div>
+
+            <div style="margin-top: 10px;">
+                <div>Notes:</div>
+                <div>{{ status.notes }}</div>
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+
+{% endblock %}
+
+
+{% block style %}
+{% endblock %}

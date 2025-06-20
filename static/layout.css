@@ -55,3 +55,16 @@ form.account-input button {
     padding: 5px 10px;
 }
 
+
+#review-table th {
+    text-align: right;
+}
+
+#review-table td {
+    padding-left: 10px;
+}
+
+#review-table * {
+    padding: 2px;
+}
+

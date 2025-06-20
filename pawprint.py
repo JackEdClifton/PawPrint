@@ -48,6 +48,13 @@ class StatusTypes:
 	confirm = 5		# changes have been moved
 	complete = 6	# reviewer confirms nothing is missing
 
+	@classmethod
+	def name(cls, value):
+		for k, v in vars(cls).items():
+			if not k.startswith("__") and v == value:
+				return k
+		return None
+
 
 class Projects(db.Model):
 	project_id = db.Column(db.Integer, primary_key=True)
@@ -432,6 +439,29 @@ def reviews():
 
 
 
+
+@app.route("/reviews/<int:review_id>")
+@flask_login.login_required
+def review(review_id):
+
+	if not flask_login.current_user.privileges in (
+		Privileges.admin,
+		Privileges.approver,
+		Privileges.developer,
+		Privileges.read_only
+	):
+		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
+	
+	review = Review.query.filter_by(review_id=review_id).first()
+	statusList = Status.query.filter_by(review_id=review_id).order_by(Status.modified_at.asc()).all()
+
+	if not review:
+		return get_flask_error("Could not load that review ID.")
+
+	print(review.project_id)
+	print(review.project)
+
+	return flask.render_template("review.html", review=review, statusList=statusList, StatusTypes=StatusTypes)
 
 
 if __name__ == "__main__":

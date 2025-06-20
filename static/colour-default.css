@@ -43,4 +43,7 @@ select {
     background-color: #4c4c4c;
 }
 
-
+.standout-bg {
+    background-color: #3c3c3c;
+    padding: 10px;
+}
