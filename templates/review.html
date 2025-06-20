@@ -47,6 +47,53 @@
             
         </table>
     </div>
+
+    <br/>
+
+
+    <div class="status-item standout-bg">
+
+        <form>
+            <select>
+
+                <!--
+                read-only = do not show any options
+
+                developer = can set to
+                    - corrections -> review
+                    - approved -> confirm
+                
+                approver
+                    - corrections
+                    - closed
+                    - approved
+                -->
+
+                <option>review</option>
+                <option>corrections</option>
+                <option>closed</option>
+                <option>approved</option>
+                <option>comfirm</option>
+                <option>complete</option>
+            </select>
+        </form>
+
+        <div>
+            <span>{{ status.modified_at.strftime('%d-%b-%Y') }}</span>
+            <span> - </span>
+            <span>{{ status.actors.f_name }} {{ status.actors.s_name }}</span>
+        </div>
+
+        <div>
+            Status: {{ StatusTypes.name(status.status) }}
+        </div>
+
+        <div style="margin-top: 10px;">
+            <div>Notes:</div>
+            <div>{{ status.notes }}</div>
+        </div>
+
+    </div>
         
         
     <br/>
