@@ -436,7 +436,7 @@ def reviews():
 			return get_flask_error("Could not create review. Please check your data and try again, or contact your admin.")
 
 	projects = Projects.query.all()
-	reviews = Review.query.all()
+	reviews = Review.query.order_by(Review.created_at.desc()).all()
 	return flask.render_template("reviews.html", projects=projects, reviews=reviews,
 		StatusTypes=StatusTypes)
 
