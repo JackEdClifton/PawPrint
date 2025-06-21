@@ -20,8 +20,20 @@ header nav a:hover, .user-account-btn:hover {
 }
 
 button {
-    color: white;
+    color: #ddd;
     background-color: #3c3c3c;
+    border: 1px solid #5c5c5c;
+}
+
+button:hover {
+    background-color: #4c4c4c;
+    border-color: #6c6c6c;
+    color: #fff;
+}
+
+button:active {
+    background-color: #5c5c5c;
+    border-color: #7c7c7c;
 }
 
 input {
@@ -47,3 +59,29 @@ select {
     background-color: #3c3c3c;
     padding: 10px;
 }
+
+
+.segmented-control {
+    border: 1px solid #555;
+}
+
+.segmented-control label {
+	background-color: #3c3c3c;
+    color: #ccc;
+	border-right: 1px solid #555;
+}
+
+.segmented-control label:hover {
+    background-color: #4c4c4c;
+    color: #fff;
+}
+
+.segmented-control input[type="radio"]:checked + label {
+	background-color: #5c5c5c;
+	color: #fff;
+}
+
+
+
+
+

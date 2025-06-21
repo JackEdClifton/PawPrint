@@ -53,46 +53,35 @@
 
     <div class="status-item standout-bg">
 
-        <form>
-            <select>
+        <form action="/reviews/{{ review.review_id }}/update" method="POST">
+            <div class="segmented-control">
+                <input type="radio" name="status" id="review" value="review" checked>
+                <label for="review">Review</label>
 
-                <!--
-                read-only = do not show any options
+                <input type="radio" name="status" id="corrections" value="corrections">
+                <label for="corrections">Corrections</label>
 
-                developer = can set to
-                    - corrections -> review
-                    - approved -> confirm
-                
-                approver
-                    - corrections
-                    - closed
-                    - approved
-                -->
+                <input type="radio" name="status" id="closed" value="closed">
+                <label for="closed">Closed</label>
 
-                <option>review</option>
-                <option>corrections</option>
-                <option>closed</option>
-                <option>approved</option>
-                <option>comfirm</option>
-                <option>complete</option>
-            </select>
+                <input type="radio" name="status" id="approved" value="approved">
+                <label for="approved">Approved</label>
+
+                <input type="radio" name="status" id="confirm" value="confirm">
+                <label for="confirm">Confirm</label>
+
+                <input type="radio" name="status" id="complete" value="complete">
+                <label for="complete">Complete</label>
+            </div>
+
+            <div>
+                <textarea class="dark-text-input" name="notes" rows="7" placeholder="Enter any additional notes here..."></textarea>
+            </div>
+            
+
+            <button type="submit" style="margin-top: 15px;">Submit Change</button>
+
         </form>
-
-        <div>
-            <span>{{ status.modified_at.strftime('%d-%b-%Y') }}</span>
-            <span> - </span>
-            <span>{{ status.actors.f_name }} {{ status.actors.s_name }}</span>
-        </div>
-
-        <div>
-            Status: {{ StatusTypes.name(status.status) }}
-        </div>
-
-        <div style="margin-top: 10px;">
-            <div>Notes:</div>
-            <div>{{ status.notes }}</div>
-        </div>
-
     </div>
         
         
