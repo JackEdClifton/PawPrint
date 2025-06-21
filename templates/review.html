@@ -10,11 +10,7 @@
         <table id="review-table">
             <tr>
                 <th>Status</th>
-                {% if statusList %}
-                <td>{{ StatusTypes.name(statusList[-1].status) }}</td>
-                {% else %}
-                <td>Not found</td>                
-                {% endif %}
+                <td>{{ StatusTypes.name(current_review_status) }}</td>
             </tr>
             <tr>
                 <th>Project</th>
@@ -51,27 +47,22 @@
     <br/>
 
 
-    <div class="status-item standout-bg">
+    <div class="standout-bg">
 
         <form action="/reviews/{{ review.review_id }}/update" method="POST">
             <div class="segmented-control">
-                <input type="radio" name="status" id="review" value="review" checked>
-                <label for="review">Review</label>
 
-                <input type="radio" name="status" id="corrections" value="corrections">
-                <label for="corrections">Corrections</label>
+                {% for button in buttons %}
 
-                <input type="radio" name="status" id="closed" value="closed">
-                <label for="closed">Closed</label>
-
-                <input type="radio" name="status" id="approved" value="approved">
-                <label for="approved">Approved</label>
-
-                <input type="radio" name="status" id="confirm" value="confirm">
-                <label for="confirm">Confirm</label>
-
-                <input type="radio" name="status" id="complete" value="complete">
-                <label for="complete">Complete</label>
+                <input type="radio" name="status" id="{{ button.text }}" value="{{ button.value }}"
+                {% if current_review_status == button.value %}
+                checked
+                {% elif not button.enabled %}
+                disabled
+                {% endif %}
+                >
+                <label for="{{ button.text }}">{{ button.display_text }}</label>
+                {% endfor %} 
             </div>
 
             <div>
@@ -89,7 +80,7 @@
     
     {% for status in statusList %}
 
-        <div class="status-item standout-bg">
+        <div class="standout-bg" style="margin-top: 20px;">
 
             <div>
                 <span>{{ status.modified_at.strftime('%d-%b-%Y') }}</span>
@@ -102,7 +93,6 @@
             </div>
 
             <div style="margin-top: 10px;">
-                <div>Notes:</div>
                 <div>{{ status.notes }}</div>
             </div>
 

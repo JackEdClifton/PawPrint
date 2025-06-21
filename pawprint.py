@@ -40,7 +40,7 @@ class Privileges:
 
 
 class StatusTypes:
-	none = 0		# for new accounts
+	none = 0		# should only occur in error
 	review = 1		# initial status for new ticket
 	corrections = 2	# reviewer has feedback for changes
 	closed = 3		# ticket is closed and not implemented
@@ -53,7 +53,7 @@ class StatusTypes:
 		for k, v in vars(cls).items():
 			if not k.startswith("__") and v == value:
 				return k
-		return None
+		return "Not found"
 
 
 class Projects(db.Model):
@@ -460,10 +460,82 @@ def review(review_id):
 	if not review:
 		return get_flask_error("Could not load that review ID.")
 
-	print(review.project_id)
-	print(review.project)
+	
+	current_review_status = statusList[-1].status if statusList else 0
 
-	return flask.render_template("review.html", review=review, statusList=statusList, StatusTypes=StatusTypes)
+	previously_approved = any(s.status == StatusTypes.approved for s in statusList)
+
+	class ReviewStatusBtn:
+		def __init__(self, text, value, enabled=False):
+			self.text = text
+			self.value = value
+			self.display_text = text.capitalize()
+			self.enabled = enabled
+	
+	buttons = [
+		ReviewStatusBtn("review", StatusTypes.review),
+		ReviewStatusBtn("corrections", StatusTypes.corrections),
+		ReviewStatusBtn("closed", StatusTypes.closed),
+		ReviewStatusBtn("approved", StatusTypes.approved),
+		ReviewStatusBtn("confirm", StatusTypes.confirm),
+		ReviewStatusBtn("complete", StatusTypes.complete)
+	]
+
+	if flask_login.current_user.privileges == Privileges.developer:
+		if not previously_approved:
+			buttons[0].enabled = True
+		else:
+			buttons[4].enabled = True
+
+
+	elif flask_login.current_user.privileges == Privileges.approver:
+		buttons[1].enabled = True
+		buttons[2].enabled = True
+		if not previously_approved:
+			buttons[3].enabled = True
+		else:
+			buttons[5].enabled = True
+		
+	
+	elif flask_login.current_user.privileges == Privileges.admin:
+		for i, btn in enumerate(buttons):
+			buttons[i].enabled = True
+
+
+
+	return flask.render_template("review.html", review=review, statusList=statusList, StatusTypes=StatusTypes,
+	current_review_status=current_review_status,
+	buttons=buttons)
+
+
+@app.route("/reviews/<int:review_id>/update", methods=["POST"])
+@flask_login.login_required
+def review_update(review_id):
+	
+	new_status = flask.request.form.get("status", type=int)
+	notes = flask.request.form.get("notes")
+
+	# TOO: validate status change is ok
+
+	latest_status = Status.query.filter_by(review_id=review_id).order_by(Status.modified_at.desc()).first()
+
+	new_status = Status(
+		review_id=latest_status.review_id,
+		status=new_status,
+		actor_id=flask_login.current_user.user_id,
+		modified_at=datetime.datetime.utcnow(),
+		notes=notes
+	)
+
+	db.session.add(new_status)
+
+	try:
+		db.session.commit()
+	except:
+		db.session.rollback()
+		return get_flask_error("Could not create review. Please check your data and try again, or contact your admin.")
+
+	return flask.redirect(f"/reviews/{review_id}")
 
 
 if __name__ == "__main__":

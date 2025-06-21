@@ -36,6 +36,13 @@ button:active {
     border-color: #7c7c7c;
 }
 
+.segmented-control input[type="radio"]:disabled + label {
+  background-color: #555555;
+  color: #999999;
+  border-color: #777777;
+}
+
+
 input {
     color: black;
 }
