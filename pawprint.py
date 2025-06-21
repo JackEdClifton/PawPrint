@@ -515,7 +515,16 @@ def review_update(review_id):
 	new_status = flask.request.form.get("status", type=int)
 	notes = flask.request.form.get("notes")
 
-	# TOO: validate status change is ok
+	if flask_login.current_user.privilages not in (
+		Privileges.developer,
+		Privileges.approver,
+		Privileges.admin,
+	):
+		return get_flask_error("Insufficient privileges to perform this action. Your account does not allow changes. Please ensure you are logged into the correct account.")
+
+	if flask_login.current_user.privileges == Privileges.developer:
+		if new_status in (StatusTypes.approved, StatusTypes.complete):
+			return get_flask_error("Insufficient privileges to perform this action. Please contact your admnin if you believe this is an error")
 
 	latest_status = Status.query.filter_by(review_id=review_id).order_by(Status.modified_at.desc()).first()
 
