@@ -29,25 +29,38 @@
     <br/>
     
     <table>
-        <tr>
-            <th>ID</th>
-            <th>Project</th>
-            <th>Branch</th>
-            <th>ERS Number</th>
-            <th>Author</th>
-            <th>Created At</th>
-        </tr>
-
-        {% for review in reviews %}
+        <thead>
             <tr>
-                <td><a href="/reviews/{{ review.review_id }}">{{ review.review_id }}</a></td>
+                <th>ID</th>
+                <th>Project</th>
+                <th>Branch</th>
+                <th>ERS Number</th>
+                <th>Author</th>
+                <th>Created At</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for review in reviews %}
+            <tr onclick="window.location.href='/reviews/{{ review.review_id }}'" style="cursor: pointer;">
+                <td>{{ review.review_id }}</td>
                 <td>{{ review.project.name }}</td>
                 <td>{{ review.branch }}</td>
                 <td>{{ review.ers_number }}</td>
-                <td>{{ review.author.name }}</td>
+                <td>{{ review.author.f_name }} {{ review.author.s_name }}</td>
                 <td>{{ review.created_at.strftime('%d-%b-%Y') }}</td>
+                <td>
+                    {% set latest_status = review.status_history[-1] if review.status_history else None %}
+                    {% if latest_status %}
+                    {{ StatusTypes.name(latest_status.status) }}
+                    {% else %}
+                    Not found
+                    {% endif %}
+                </td>
             </tr>
-        {% endfor %}
+            {% endfor %}
+        </tbody>
     </table>
 
 

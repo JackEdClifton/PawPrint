@@ -115,3 +115,16 @@ form.account-input button {
   pointer-events: none;
 }
 
+
+
+
+table {
+    border-spacing: 0px;
+}
+table td {
+    padding: 2px 20px;
+    text-align: center;
+    outline: none;
+}
+
+

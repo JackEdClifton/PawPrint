@@ -89,6 +89,8 @@ select {
 }
 
 
-
+table tbody tr:hover {
+    background-color: #3c3c3c;
+}
 
 

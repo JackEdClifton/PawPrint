@@ -98,7 +98,7 @@ class Status(db.Model):
 	notes = db.Column(db.Text)
 
 	# Relationships
-	reviewd = db.relationship('Review', backref=db.backref('status_history', lazy=True, cascade="all, delete-orphan"))
+	reviews = db.relationship('Review', backref=db.backref('status_history', lazy=True, cascade="all, delete-orphan"))
 	actors = db.relationship('Users', backref=db.backref('status_actions', lazy=True))
 
 
@@ -141,7 +141,7 @@ def home():
 def projects():
 
 	if flask_login.current_user.privileges != Privileges.admin:
-		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
+		return get_flask_error("Insufficient privileges. Please contact your admin or log into another account.")
 
 	if flask.request.method == "POST":
 		project = flask.request.form.get("project")
@@ -169,7 +169,7 @@ def projects():
 def delete_project(project_id):
 
 	if flask_login.current_user.privileges != Privileges.admin:
-		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
+		return get_flask_error("Insufficient privileges. Please contact your admin or log into another account.")
 
 	project_obj = Projects.query.filter_by(project_id=project_id).first()
 
@@ -188,7 +188,7 @@ def delete_project(project_id):
 def rename_project(project_id):
 
 	if flask_login.current_user.privileges != Privileges.admin:
-		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
+		return get_flask_error("Insufficient privileges. Please contact your admin or log into another account.")
 
 	new_project_name = flask.request.form.get("name", "").strip()
 
@@ -213,7 +213,7 @@ def rename_project(project_id):
 def users():
 
 	if flask_login.current_user.privileges != Privileges.admin:
-		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
+		return get_flask_error("Insufficient privileges. Please contact your admin or log into another account.")
 
 	if flask.request.method == "POST":
 		f_name = flask.request.form.get("f_name")
@@ -245,7 +245,7 @@ def users():
 def update_user_priv(user_id):
 
 	if flask_login.current_user.privileges != Privileges.admin:
-		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
+		return get_flask_error("Insufficient privileges. Please contact your admin or log into another account.")
 
 	new_priv_value = flask.request.form.get("priv", type=int)
 
@@ -391,7 +391,7 @@ def reviews():
 			Privileges.approver,
 			Privileges.developer
 		):
-			return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
+			return get_flask_error("Insufficient privileges. Please contact your admin or log into another account.")
 
 
 		project_id = flask.request.form.get("project_id", type=int)
@@ -437,7 +437,8 @@ def reviews():
 
 	projects = Projects.query.all()
 	reviews = Review.query.all()
-	return flask.render_template("reviews.html", projects=projects, reviews=reviews)
+	return flask.render_template("reviews.html", projects=projects, reviews=reviews,
+		StatusTypes=StatusTypes)
 
 
 
@@ -452,7 +453,7 @@ def review(review_id):
 		Privileges.developer,
 		Privileges.read_only
 	):
-		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
+		return get_flask_error("Insufficient privileges. Please contact your admin or log into another account.")
 	
 	review = Review.query.filter_by(review_id=review_id).first()
 	statusList = Status.query.filter_by(review_id=review_id).order_by(Status.modified_at.asc()).all()
@@ -515,7 +516,7 @@ def review_update(review_id):
 	new_status = flask.request.form.get("status", type=int)
 	notes = flask.request.form.get("notes")
 
-	if flask_login.current_user.privilages not in (
+	if flask_login.current_user.privileges not in (
 		Privileges.developer,
 		Privileges.approver,
 		Privileges.admin,
