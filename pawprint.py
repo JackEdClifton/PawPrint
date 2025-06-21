@@ -384,15 +384,15 @@ def account_update_password():
 @flask_login.login_required
 def reviews():
 
-	if not flask_login.current_user.privileges in (
-		Privileges.admin,
-		Privileges.approver,
-		Privileges.developer
-	):
-		return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
-
-
 	if flask.request.method == "POST":
+
+		if not flask_login.current_user.privileges in (
+			Privileges.admin,
+			Privileges.approver,
+			Privileges.developer
+		):
+			return get_flask_error("Insufficient privilages. Please contact your admin or log into another account.")
+
 
 		project_id = flask.request.form.get("project_id", type=int)
 		branch = flask.request.form.get("branch")
