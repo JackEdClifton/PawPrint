@@ -32,8 +32,8 @@
             <td>{{ user.f_name }} {{ user.s_name }}</td>
             <td>{{ user.email }}</td>
             <td>
-                <form action="/users/{{ user.id }}/priv" method="POST">
-                    <select>
+                <form action="/users/{{ user.user_id }}/priv" method="POST">
+                    <select name="priv" onchange="this.form.submit()">
                     {% for priv_name, priv_value in privileges %}
                         <option value="{{ priv_value }}"
                             {% if user.privileges == priv_value %}selected{% endif %}>

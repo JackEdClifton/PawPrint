@@ -36,7 +36,7 @@ class Privileges:
 	
 	@classmethod
 	def contains_value(cls, value):
-		return value in cls.values()
+		return value in (v for _, v in cls.items())
 
 
 class StatusTypes:
@@ -262,6 +262,8 @@ def update_user_priv(user_id):
 	except:
 		db.sesion.rollback()
 		return get_flask_error("Could not update privilage")
+
+	return flask.redirect("/users")
 
 	
 	
